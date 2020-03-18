@@ -4,6 +4,7 @@ const {
     Board,
     Category,
     User,
+    Like,
     Sequelize: { Op }
   } = require('./models');
 sequelize.query('SET NAMES utf8;');
@@ -51,13 +52,14 @@ module.exports = {
     },
 
     add : {
-        board : (body, callback) => {
+        board : (body, now_date, callback) => {
             Board.create({
                 title : body.title,
                 contents : body.contents,
                 date : now_date,
                 view_cnt : 0,
                 cat_id : 0,
+                likes : 0,
             })
             .then(data => {
                 callback(true)
@@ -123,6 +125,35 @@ module.exports = {
             })
             .then( () => { callback(true) })
             .catch(err => { throw err; })
+        },
+
+        like : (body, callback) => {
+
+            // 게시글의 LIKE 증가 및 감소
+            if(body.type === 'add') {
+                Board.update({ likes : sequelize.literal('likes + 1')}, {
+                    where : { board_id : body.board_id }
+                })
+
+                Like.create({
+                    board_id : body.board_id,
+                    user_id : body.user_id
+                })
+
+            } else if(body.type === 'remove') {
+                Board.update({ likes : sequelize.literal('likes - 1')}, {
+                    where : { board_id : body.board_id }
+                })
+
+                Like.destroy({
+                    where : { 
+                        board_id : body.board_id,
+                        user_id : body.user_id
+                    }
+                })
+            }
+
+            callback(true)
         }
     },
 
@@ -143,7 +174,6 @@ module.exports = {
 
     modify : {
         category : (body, callback) => {
-            console.log(body)
             Category.count({
                 where : { name : body.name }
             })
@@ -232,6 +262,19 @@ module.exports = {
         category : (callback) => {
             Category.findAll()
             .then(result => { callback(result); })
+            .catch(err => { throw err; })
+        }
+    },
+
+    check : {
+        like : (body, callback) => {
+            Like.findAll({
+                where : { 
+                    board_id : body.board_id,
+                    user_id : body.user_id
+                }
+            })
+            .then(result => { callback(result) })
             .catch(err => { throw err; })
         }
     }

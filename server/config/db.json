@@ -5,7 +5,8 @@
         "database": "",
         "host": "",
         "port": "",
-        "dialect": ""
+        "dialect": "mysql",
+        "timezone" : "+09:00"
     },
 
     "salt" : ""

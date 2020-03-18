@@ -187,12 +187,6 @@
     padding: 50px 70px 0px 70px;
 }
 
-.Like {
-    display: grid;
-    grid-template-columns: 40% 20% 40%;
-    margin-top: 150px;
-}
-
 .btn_list {
     list-style : none;
     width: 80%;
@@ -366,3 +360,14 @@ input[name=change_password_submit] {
     border-radius: 3px;
     cursor: pointer;
 }
+
+.other_div { 
+    margin-top: 300px; 
+    border-top: solid 1px #ababab;
+    display: grid;
+    grid-template-columns: 25% 40% 25%;
+}
+
+.Like { margin : 50px 0px 0px 48%; }
+.Like img { width: 60px; cursor: pointer; }
+.Like h5 { margin-top: 10px; }

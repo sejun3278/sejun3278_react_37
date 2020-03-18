@@ -22,6 +22,7 @@ class App extends Component {
       list_all_page : [],
       list_search : "",
       category : "",
+      user_id : "",
     }
   }
 
@@ -32,7 +33,8 @@ class App extends Component {
       this.setState({ 
         login : JSON.parse(sessionStorage.login).id, 
         admin : JSON.parse(sessionStorage.login).admin,
-        user_ip : JSON.parse(sessionStorage.IP)
+        user_ip : JSON.parse(sessionStorage.IP),
+        user_id : JSON.parse(sessionStorage.login).user_id, 
       })
     }
   }
@@ -104,7 +106,8 @@ class App extends Component {
 
     this.setState({ login : JSON.parse(sessionStorage.login).id,  
                     admin : JSON.stringify(data.suc).admin,
-                    user_ip : JSON.parse(sessionStorage.IP)
+                    user_ip : JSON.parse(sessionStorage.IP),
+                    user_id : JSON.parse(sessionStorage.login).user_id
     })
     return window.location.reload()
   }
@@ -131,7 +134,7 @@ class App extends Component {
   render() {
     const { 
       login, admin, user_ip, login_modal,
-      list_data, list_all_page, list_search, list_page
+      list_data, list_all_page, list_search, list_page, user_id
     } = this.state;
 
     const { 
@@ -158,7 +161,7 @@ class App extends Component {
           admin = {admin}
           user_ip = {user_ip}
           login = {login}
-          login_modal= {login_modal}
+          login_modal = {login_modal}
           _toggleModal = {_toggleModal}
           _getSearch = {_getSearch}
           list_data = {list_data}
@@ -167,6 +170,7 @@ class App extends Component {
           list_page = {list_page}
           _changePage = {_changePage}
           _changeCatgory = {_changeCatgory}
+          user_id = {user_id}
         />
       </div>
     </div>

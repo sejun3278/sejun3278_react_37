@@ -136,7 +136,7 @@ class Signup extends Component {
               <h5> 이메일 </h5>
               <input type='text' maxLength='15' name='signup_email'/> @
               <select name='signup_email_select' onChange={() => this._changeEmailSelect()}>
-                <option value='google.com'> google.com </option>
+                <option value='gmail.com'> gmail.com </option>
                 <option value='naver.com'> naver.com </option>
                 <option value='write'> 직접 입력 </option>
               </select>

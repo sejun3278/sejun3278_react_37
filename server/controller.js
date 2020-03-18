@@ -20,17 +20,19 @@ const nodeMailer = require('nodemailer');
 
 // 메일 발송 서비스에 대한 환경 설정
 const mailPoster = nodeMailer.createTransport({
-  service: 'gmail',
+  service: 'naver',
+  host: 'smtp.naver.com',
+  port: 587,
   auth: {
-    user: /* 메일에 사용할 아이디 입력 */ example,
-    pass: /* 메일에 사용할 비밀번호 입력 */ example
+    user: '',
+    pass: ''
   }
 });
 
 // 메일을 받을 유저 설정
 const mailOpt = (user_data, title, contents) => {
   const mailOptions = {
-    from: /* 메일에 사용할 아이디 입력 */ example,
+    from: '',
     to: user_data.email ,
     subject: title,
     text: contents
@@ -42,6 +44,8 @@ const mailOpt = (user_data, title, contents) => {
 // 메일 전송
 const sendMail = (mailOption) => {
   mailPoster.sendMail(mailOption, function(error, info){
+
+
     if (error) {
       console.log('에러 ' + error);
     }
@@ -125,7 +129,7 @@ const sendMail = (mailOption) => {
       board : (req, res) => {
         const body = req.body;
 
-        model.add.board(body, result => {
+        model.add.board(body, now_date, result => {
           if(result) {
             res.send(true);
           }
@@ -191,6 +195,30 @@ const sendMail = (mailOption) => {
         model.update.password(body, hash_pw, result => {
           res.send(true)
         })
+      },
+
+      like : (req, res) => {
+        const body = req.body;
+
+        model.check.like(body, data => {
+          // 중복이 아닌 경우
+          if(data.length === 0) {
+            model.update.like(body, result => {
+              res.send(result)
+            })
+
+          } else {
+            // 이미 좋아요를 눌렀을 경우
+            if(body.type === 'remove') {
+              model.update.like(body, result => {
+                res.send(result)
+              })
+
+            } else {
+              res.send(false)
+            }
+          }
+        }) 
       }
     },
 
@@ -259,6 +287,16 @@ const sendMail = (mailOption) => {
 
         model.get.category(data => {
           res.send(data)
+        })
+      },
+    },
+
+    check : {
+      like : (req, res) => {
+        const body = req.body;
+
+        model.check.like(body, result => {
+          res.send(result);
         })
       }
     }

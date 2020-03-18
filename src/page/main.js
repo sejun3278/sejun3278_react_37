@@ -39,7 +39,7 @@ class main extends Component {
     const { 
       login, admin, user_ip,
       list_data, list_all_page, list_search, list_page, _changePage,
-      _changeCatgory
+      _changeCatgory, user_id, _toggleModal
     } = this.props;
 
     return (
@@ -78,7 +78,12 @@ class main extends Component {
                    component={Signup}
             />
                    
-            <Route path='/view/:data' component={View} />
+            <Route path='/view/:data' 
+             component={this._withProps(View, { 
+              login : login,
+              user_id : user_id,
+              _toggleModal : _toggleModal
+            })} />
           </div>
 
           <div id='Mains-right'>
