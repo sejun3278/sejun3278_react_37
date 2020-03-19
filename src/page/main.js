@@ -13,7 +13,8 @@ class main extends Component {
     this.state = {
       category : '',
       category_change : false,
-      contents : ""
+      contents : "",
+      title : ""
     }
   }
 
@@ -33,9 +34,15 @@ class main extends Component {
     this.setState({ contents : contents })
   }
 
+  _getTitles = () => {
+    const title = document.getElementsByName('title')[0].value.trim();
+
+    this.setState({ title : title })
+  }
+
   render() {
-    const { _changeState, _getContents } = this;
-    const { contents } = this.state;
+    const { _changeState, _getContents, _getTitles } = this;
+    const { contents, title } = this.state;
     const { 
       login, admin, user_ip,
       list_data, list_all_page, list_search, list_page, _changePage,
@@ -71,8 +78,11 @@ class main extends Component {
 
             <Route path='/write' 
                    component={this._withProps(Write, { 
-                     _getContents : _getContents, 
-                     contents : contents })} />
+                     _getContents : _getContents,
+                     _getTitles : _getTitles,
+                     contents : contents,
+                     title : title
+                     })} />
 
             <Route path='/signup' 
                    component={Signup}

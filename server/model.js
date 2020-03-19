@@ -61,12 +61,8 @@ module.exports = {
                 cat_id : 0,
                 likes : 0,
             })
-            .then(data => {
-                callback(true)
-            })
-            .catch(err => {
-                throw err;
-            })
+            .then( () => { callback(true) })
+            .catch(err => { throw err; })
         },
 
         category : (body, callback) => {
@@ -195,33 +191,31 @@ module.exports = {
 
 
     get : {
-
         board : (body, callback) => {
             let search = "%%";
 
             if(body.search) {
                 search = '%' + body.search + '%';
             }
+
+            let where = body.category;
+            if(!body.category) {
+                // 전체 보기를 클릭할 경우
+                where = !body.category;
+            }
+
             Board.findAll({
                 where : {
-                    title : {
-                        [Op.like] : search
-                    },
-                    contents : {
-                        [Op.like] : search
-                    },
-                    cat_id : body.category
+                    title : { [Op.like] : search },
+                    contents : { [Op.like] : search },
+                    [Op.or]: [{ cat_id : body.category },  { cat_id : where }]
                 },
                     limit : (body.page * body.limit),
                     offset : (body.page - 1) * body.limit,
                     order: sequelize.literal('board_id DESC')
                 })
-            .then(data => {
-                callback(data)
-            })
-            .catch(err => {
-                throw err;
-            })
+            .then(data => { callback(data) })
+            .catch(err => { throw err; })
         },
 
         board_cnt : (body, callback) => {
@@ -230,16 +224,18 @@ module.exports = {
             if(body.search) {
                 search = '%' + body.search + '%';
             }
+
+            let where = body.category;
+            if(!body.category) {
+                // 전체 보기를 클릭할 경우
+                where = !body.category;
+            }
     
             Board.count({
                 where : {
-                    title : {
-                        [Op.like] : search
-                    },
-                    contents : {
-                        [Op.like] : search
-                    },
-                    cat_id : body.category
+                    title : { [Op.like] : search },
+                    contents : { [Op.like] : search },
+                    [Op.or]: [{ cat_id : body.category },  { cat_id : where }]
                 }
             })
             .then(result => {
