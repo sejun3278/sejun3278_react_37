@@ -23,6 +23,9 @@ class App extends Component {
       list_search : "",
       category : "",
       user_id : "",
+      data : "",
+      date : "",
+      like_num : ""
     }
   }
 
@@ -37,6 +40,30 @@ class App extends Component {
         user_id : JSON.parse(sessionStorage.login).user_id, 
       })
     }
+  }
+
+  _getAllLike = (type) => {
+    const { data } = this.state;
+
+    if(type === 'add') {
+      this.setState({ like_num : data.data[0].likes + 1})
+
+    } else if (type === 'remove') {
+      this.setState({ like_num : data.data[0].likes - 1})
+    }
+  }
+
+  _getData = async (board_id) => {
+    const getData = await axios('/get/board_data', {
+      method : 'POST',
+      headers: new Headers(),
+      data : { id : board_id }
+    });
+
+    // 날짜 구하기
+    const date = getData.data[0].date.slice(0, 10) + ' ' + getData.data[0].date.slice(11, 16);
+
+    return this.setState({ data : getData, date : date, like_num : getData.data[0].likes })
   }
 
   _setPage = function() {
@@ -134,12 +161,13 @@ class App extends Component {
   render() {
     const { 
       login, admin, user_ip, login_modal,
-      list_data, list_all_page, list_search, list_page, user_id
+      list_data, list_all_page, list_search, list_page, user_id,
+      data, date, like_num
     } = this.state;
 
     const { 
       _login, _logout, _toggleModal, _getSearch, _changePage,
-      _changeCatgory
+      _changeCatgory, _getData, _getAllLike
     } = this;
     
     return(
@@ -171,6 +199,11 @@ class App extends Component {
           _changePage = {_changePage}
           _changeCatgory = {_changeCatgory}
           user_id = {user_id}
+          data = {data}
+          date = {date}
+          like_num = {like_num}
+          _getData = {_getData}
+          _getAllLike = {_getAllLike}
         />
       </div>
     </div>

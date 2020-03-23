@@ -13,6 +13,7 @@ class login extends Component {
         password : "",
         search_id_modal : false,
         search_pw_modal : false,
+        close : "https://iconmonstr.com/wp-content/g/gd/makefg.php?i=../assets/preview/2012/png/iconmonstr-x-mark-2.png&r=0&g=0&b=0",
     }
 }
 
@@ -94,6 +95,8 @@ class login extends Component {
   }
 
   render() {
+    const { close } = this.state;
+     
     return (
         <div>
             <Modal visible={this.props.login_modal} 
@@ -103,6 +106,7 @@ class login extends Component {
                 >
                   <div>
                     <h4 className='acenter login_tit'> 로그인 </h4>
+                    <img src={close} id='login_close' title='닫기' onClick={() => this.props._toggleModal(false)} />
                     <form>
                     <div className='login_div'>
                       <div className='login_input_div'>
@@ -116,8 +120,7 @@ class login extends Component {
                       </div>
 
                       <div className='submit_div'>
-                        <div> <input type='button' value='로그인' onClick={() => this._selectUserData()}/> </div>
-                        <div> <input type='button' value='취소' onClick={() => this.props._toggleModal(false)}/> </div>
+                        <b id='login_button' onClick={() => this._selectUserData()}> 로그인 </b>
                       </div>
                     </div>
                     </form>

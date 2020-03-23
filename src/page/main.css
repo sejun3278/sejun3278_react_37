@@ -18,6 +18,60 @@
     margin-left: 50px;
 }
 
+.header_grid {
+    display: grid;
+    grid-template-columns: 33% 33% auto;
+    border-bottom : solid 1px #ababab;
+  }
+  
+.acenter { 
+    text-align : center; 
+}
+  
+.btn_cursor {
+    cursor : pointer;
+}
+  
+.link_tit {
+    color : black;
+    text-decoration: none;
+}
+  
+.login_tit {
+    border-bottom: solid 1px #ababab;
+    padding-bottom : 20px
+}
+  
+.modal_tools {
+    margin-top : -100px
+}
+  
+.login_input_div p {
+    font-weight: bold;
+    margin-bottom : 8px;
+}
+  
+.login_input_div input {
+    width: 85%;
+    padding: 4px;
+    margin-top: -10px;
+    margin-left: 10px;
+}
+  
+.login_div {
+    text-align: left;
+    padding-left: 20px;
+}
+  
+.submit_div {
+    margin-top: 10%;
+    margin-bottom: 43px;
+}
+  
+.submit_div div {
+    text-align: center;
+}
+
 #title_txt {
     width: 91%;
     padding-bottom: 30px;
@@ -246,10 +300,11 @@ input[name=signup_email_write] {
     display: grid;
     grid-template-columns: 50% 50%;
     border-top: solid 1px #ababab;
+    color: #ababab;
 }
 .search_user_info_div div { 
     text-align: center; 
-    margin-top: 10px;
+    margin-top: 15px;
 }
 
 .search_user_info_div div b { 
@@ -371,3 +426,17 @@ input[name=change_password_submit] {
 .Like { margin : 50px 0px 0px 48%; }
 .Like img { width: 60px; cursor: pointer; }
 .Like h5 { margin-top: 10px; }
+
+#login_close {
+    width: 20px;
+    position: absolute;
+    margin: -60px 0px 0px 150px;
+    cursor: pointer;
+}
+
+#login_button {
+    position: relative;
+    margin-left: 40%;
+    font-size: 18px;
+    cursor: pointer;
+}

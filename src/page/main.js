@@ -46,7 +46,8 @@ class main extends Component {
     const { 
       login, admin, user_ip,
       list_data, list_all_page, list_search, list_page, _changePage,
-      _changeCatgory, user_id, _toggleModal
+      _changeCatgory, user_id, _toggleModal, _getData, _getAllLike,
+      data, date, like_num
     } = this.props;
 
     return (
@@ -92,7 +93,12 @@ class main extends Component {
              component={this._withProps(View, { 
               login : login,
               user_id : user_id,
-              _toggleModal : _toggleModal
+              _toggleModal : _toggleModal,
+              data : data,
+              date : date,
+              like_num : like_num,
+              _getData : _getData,
+              _getAllLike : _getAllLike
             })} />
           </div>
 

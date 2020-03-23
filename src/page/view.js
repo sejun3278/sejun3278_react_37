@@ -7,19 +7,18 @@ class view extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      data : [],
-      date : "",
       none_like : 'https://iconmonstr.com/wp-content/g/gd/makefg.php?i=../assets/preview/2013/png/iconmonstr-thumb-10.png&r=171&g=171&b=171',
       like : 'https://iconmonstr.com/wp-content/g/gd/makefg.php?i=../assets/preview/2013/png/iconmonstr-thumb-10.png&r=171&g=53&b=53',
       like_exist : false,
-      like_num : 0,
     }
   }
 
   componentDidMount() {
     const board_id = this.props.match.params.data;
+    if(!this.props.data) {
+      this.props._getData(board_id)
+    }
 
-    this._getData(board_id);
     this._addViewCnt(board_id);
     this._getLikeInfo();
   }
@@ -47,30 +46,6 @@ class view extends Component {
     }
   };
 
-  _getAllLike = function(type) {
-    const { data } = this.state;
-
-    if(type === 'add') {
-      this.setState({ like_num : data.data[0].likes + 1})
-
-    } else if (type === 'remove') {
-      this.setState({ like_num : data.data[0].likes - 1})
-    }
-  }
-
-  _getData = async function(board_id) {
-    const getData = await axios('/get/board_data', {
-      method : 'POST',
-      headers: new Headers(),
-      data : { id : board_id }
-    });
-
-    // 날짜 구하기
-    const date = getData.data[0].date.slice(0, 10) + ' ' + getData.data[0].date.slice(11, 16);
-
-    return this.setState({ data : getData, date : date, like_num : getData.data[0].likes })
-  }
-
   _addViewCnt = async function(board_id) {
     await axios('/update/view_cnt', {
       method : 'POST',
@@ -80,7 +55,9 @@ class view extends Component {
   }
 
   _toggleLike = async function() {
-    const { user_id, login, _toggleModal } = this.props;
+    const { 
+      user_id, login, _toggleModal, _getData, _getAllLike 
+    } = this.props;
 
     if(!login) {
       alert('로그인이 필요합니다.');
@@ -107,24 +84,30 @@ class view extends Component {
         })
 
         this.setState({ like_exist : false })
-        this._getAllLike('remove')
+        //this._getAllLike('remove')
+        _getAllLike('remove')
 
         alert('좋아요가 취소되었습니다.');
       }
        
     } else {
       this.setState({ like_exist : true })
-      this._getAllLike('add')
+      //this._getAllLike('add')
+      _getAllLike('add')
 
       alert('해당 게시물에 좋아요를 누르셨습니다.')
     }
-    return this._getData(board_id)
+    return _getData(board_id)
   }
 
   render() {
     const { 
-      data, date, none_like, like, like_exist, like_num 
+      none_like, like, like_exist
+      // state 에 data, date, like_num 이 있다면 삭제
     } = this.state;
+
+    const { data, date, like_num } = this.props
+    // this.props 안으로 변수 변환
 
     return (
         <div className='Write View'>
