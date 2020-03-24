@@ -10,17 +10,25 @@ class view extends Component {
       none_like : 'https://iconmonstr.com/wp-content/g/gd/makefg.php?i=../assets/preview/2013/png/iconmonstr-thumb-10.png&r=171&g=171&b=171',
       like : 'https://iconmonstr.com/wp-content/g/gd/makefg.php?i=../assets/preview/2013/png/iconmonstr-thumb-10.png&r=171&g=53&b=53',
       like_exist : false,
+      pre : "https://iconmonstr.com/wp-content/g/gd/makefg.php?i=../assets/preview/2018/png/iconmonstr-angel-left-thin.png&r=0&g=0&b=0",
+      next : "https://iconmonstr.com/wp-content/g/gd/makefg.php?i=../assets/preview/2018/png/iconmonstr-angel-right-thin.png&r=0&g=0&b=0",
     }
   }
 
   componentDidMount() {
     const board_id = this.props.match.params.data;
+    const { pre_view, next_view, _getPreAndNextData } = this.props;
+
+    this._addViewCnt(board_id);
+
     if(!this.props.data) {
       this.props._getData(board_id)
     }
-
-    this._addViewCnt(board_id);
-    this._getLikeInfo();
+    this._getLikeInfo()
+    
+    if(pre_view === "" || next_view === "") {
+      _getPreAndNextData(board_id)
+    }
   }
 
   _getLikeInfo = async function() {
@@ -56,7 +64,7 @@ class view extends Component {
 
   _toggleLike = async function() {
     const { 
-      user_id, login, _toggleModal, _getData, _getAllLike 
+      user_id, login, _toggleModal, _getAllLike 
     } = this.props;
 
     if(!login) {
@@ -97,17 +105,35 @@ class view extends Component {
 
       alert('해당 게시물에 좋아요를 누르셨습니다.')
     }
-    return _getData(board_id)
+  }
+
+  _changeViewPage = function(url) {
+    if(url === 'null_pre') {
+      return alert('첫번째 게시물입니다.')
+      
+    } else if (url === 'null_next') {
+      return alert('마지막 게시물입니다.')
+    }
+
+    return window.location.href = url;
   }
 
   render() {
     const { 
-      none_like, like, like_exist
-      // state 에 data, date, like_num 이 있다면 삭제
+      none_like, like, like_exist, pre, next,
     } = this.state;
+    
+    const { 
+      data, date, like_num, pre_view, next_view
+    } = this.props
 
-    const { data, date, like_num } = this.props
-    // this.props 안으로 변수 변환
+    if(next_view.length) {
+      var next_url = '/view/' + next_view[0].board_id;
+    }
+
+    if(pre_view.length) {
+      var pre_url = '/view/' + pre_view[0].board_id;
+    }
 
     return (
         <div className='Write View'>
@@ -127,12 +153,48 @@ class view extends Component {
               </div>
 
               <div className='other_div'>
-                <div> {/* left empty*/} </div>
+                <div className='view_pre_next_div view_pre'> 
+                  {/* left empty */}
+                  <p> 이전글 </p>
+
+                  <img src={pre} onClick={
+                    pre_url 
+                    ? () => this._changeViewPage(pre_url) 
+                    : () => this._changeViewPage('null_pre') }/>
+
+                  <div>
+                  {pre_view.length > 0 
+                    ? <b onClick={ () => this._changeViewPage(pre_url) }>
+                        { pre_view[0].title }
+                      </b>
+                    : <p> 첫번째 글입니다. </p>}
+                  </div>
+                  
+                </div>
+
                 <div className='Like'>
                   <img src={!like_exist ? none_like : like} onClick={() => this._toggleLike()}/>
                   <h5> 좋아요 ( {like_num} ) </h5>
                 </div>
-                <div> {/* right empty*/} </div>
+
+                <div className='view_pre_next_div view_next'> 
+                  {/* right empty */} 
+                  <p> 다음글 </p>
+
+                  <img src={next} onClick={
+                    next_url 
+                    ? () => this._changeViewPage(next_url) 
+                    : () => this._changeViewPage('null_next') }/>
+
+                  <div>
+                  {next_view.length > 0 
+                    ? <b onClick={ () => this._changeViewPage(next_url) }>
+                        { next_view[0].title }
+                      </b>
+                    : <p> 마지막 글입니다. </p>}
+                  </div>
+                </div>
+
               </div>
             </div>
 

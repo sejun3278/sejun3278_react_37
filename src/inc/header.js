@@ -21,14 +21,19 @@ class header extends Component {
   _logout = function() {
     if(window.confirm('로그아웃 하시겠습니까?')) {
       this.props._logout();
+
+      sessionStorage.removeItem('page')
+      sessionStorage.setItem('category', '')
+
+      return window.location.href = '/';
     }
   }
 
   _goHead = function() {
+    window.location.href = '/';
+
     sessionStorage.removeItem('page')
     sessionStorage.setItem('category', '')
-
-    return window.location.href = '/';
   }
 
   render() {
@@ -46,7 +51,7 @@ class header extends Component {
 
             <div className='acenter'>
                 <Route path='/'/>
-                <h3 onClick={() => this._goHead()}> <Link className='link_tit' to='/'> Sejun's Blog </Link> </h3>
+                <h3 onClick={() => this._goHead()}> <b className='link_tit' to='/'> Sejun's Blog </b> </h3>
             </div>
 
             <div className='acenter'>

@@ -26,5 +26,7 @@ router.post('/check/like', controller.check.like);
 router.post('/get/board', controller.get.board);
 router.post('/get/board_cnt', controller.get.board_cnt);
 router.post('/get/board_data', controller.get.board_data);
+router.post('/get/pre_and_next', controller.get.pre_and_next);
+
 
 module.exports = router;

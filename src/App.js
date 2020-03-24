@@ -25,12 +25,17 @@ class App extends Component {
       user_id : "",
       data : "",
       date : "",
-      like_num : ""
+      like_num : "",
+      pre_view : "",
+      next_view : "",
+      category_data : [],
+      select_category : "",
     }
   }
 
   componentDidMount() {
     this._getListData();
+    this._getAllCategoryData();
 
     if(sessionStorage.login && sessionStorage.IP) {
       this.setState({ 
@@ -49,7 +54,7 @@ class App extends Component {
       this.setState({ like_num : data.data[0].likes + 1})
 
     } else if (type === 'remove') {
-      this.setState({ like_num : data.data[0].likes - 1})
+      this.setState({ like_num : data.data[0].likes})
     }
   }
 
@@ -153,21 +158,50 @@ class App extends Component {
   // 카테고리 변동
   _changeCatgory = (target) => {
     sessionStorage.setItem('category', target);
-    this.setState({ category : target });
+    return window.location.href = '/';
+  }
 
-    return this._getListData();
+  _getPreAndNextData = async (board_id) => {
+    const category = sessionStorage.getItem('category');
+
+    const res = await axios('/get/pre_and_next', {
+      method : 'POST',
+      headers: new Headers(),
+      data : { board_id : board_id, category : category }
+    })
+
+    this.setState({
+      pre_view : res.data.pre,
+      next_view : res.data.next
+   })
+  }
+
+  _getAllCategoryData = async function() {
+    const getData = await axios('/get/category');
+
+    this.setState({ category_data : getData.data })
+  }
+
+  _selectCategoryData = async () => {
+    const category = document.getElementsByName('select_category')[0].value;
+
+    this.setState({
+      select_category : category
+    })
   }
 
   render() {
     const { 
       login, admin, user_ip, login_modal,
       list_data, list_all_page, list_search, list_page, user_id,
-      data, date, like_num
+      data, date, like_num, pre_view, next_view, category_data,
+      select_category
     } = this.state;
 
     const { 
       _login, _logout, _toggleModal, _getSearch, _changePage,
-      _changeCatgory, _getData, _getAllLike
+      _changeCatgory, _getData, _getAllLike, _getPreAndNextData,
+      _selectCategoryData
     } = this;
     
     return(
@@ -204,6 +238,12 @@ class App extends Component {
           like_num = {like_num}
           _getData = {_getData}
           _getAllLike = {_getAllLike}
+          pre_view = {pre_view}
+          next_view = {next_view}
+          _getPreAndNextData = {_getPreAndNextData}
+          category_data = {category_data}
+          select_category = {select_category}
+          _selectCategoryData = {_selectCategoryData}
         />
       </div>
     </div>

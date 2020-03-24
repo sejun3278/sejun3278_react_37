@@ -58,7 +58,7 @@ module.exports = {
                 contents : body.contents,
                 date : now_date,
                 view_cnt : 0,
-                cat_id : 0,
+                cat_id : body.category,
                 likes : 0,
             })
             .then( () => { callback(true) })
@@ -198,17 +198,28 @@ module.exports = {
                 search = '%' + body.search + '%';
             }
 
-            let where = body.category;
+            let where_1 = body.category;
+            let where_2 = '';
+                        
             if(!body.category) {
-                // 전체 보기를 클릭할 경우
-                where = !body.category;
+            // 전체보기를 클릭했을 경우
+                 where_2 = 0;
+            
+            } else if(body.category) {
+            // 카테고리를 클릭했을 경우
+                 where_2 = null;
             }
 
             Board.findAll({
                 where : {
                     title : { [Op.like] : search },
                     contents : { [Op.like] : search },
-                    [Op.or]: [{ cat_id : body.category },  { cat_id : where }]
+                    cat_id : {
+                        [Op.or] : {
+                            [Op.eq] : where_1,
+                            [Op.gt] : where_2
+                        }
+                    }
                 },
                     limit : (body.page * body.limit),
                     offset : (body.page - 1) * body.limit,
@@ -225,18 +236,29 @@ module.exports = {
                 search = '%' + body.search + '%';
             }
 
-            let where = body.category;
+            let where_1 = body.category;
+            let where_2 = '';
+                        
             if(!body.category) {
-                // 전체 보기를 클릭할 경우
-                where = !body.category;
+            // 전체보기를 클릭했을 경우
+                 where_2 = 0;
+            
+            } else if(body.category) {
+            // 카테고리를 클릭했을 경우
+                 where_2 = null;
             }
     
             Board.count({
                 where : {
                     title : { [Op.like] : search },
                     contents : { [Op.like] : search },
-                    [Op.or]: [{ cat_id : body.category },  { cat_id : where }]
-                }
+                    cat_id : {
+                        [Op.or] : {
+                            [Op.eq] : where_1,
+                            [Op.gt] : where_2
+                        }
+                    }
+                },
             })
             .then(result => {
                 callback(result);
@@ -259,7 +281,67 @@ module.exports = {
             Category.findAll()
             .then(result => { callback(result); })
             .catch(err => { throw err; })
-        }
+        },
+
+        pre_and_next : (body, callback) => {
+            let result = {};
+
+            let where_1 = body.category;
+            let where_2 = '';
+                        
+            if(!body.category) {
+            // 전체보기를 클릭했을 경우
+                 where_2 = 0;
+            
+            } else if(body.category) {
+            // 카테고리를 클릭했을 경우
+                 where_2 = null;
+            }
+
+            Board.findAll({
+                // 다음글 구하기
+                where : {
+                    board_id : {
+                        [Op.gt] : body.board_id
+                    },
+                    cat_id : {
+                        [Op.or] : {
+                            [Op.eq] : where_1,
+                            [Op.gt] : where_2
+                        }
+                    }
+                },
+                limit : 1
+
+            }).then(
+                next => {
+                    result['next'] = next;
+
+                    // 이전글 구하기
+                    Board.findAll({
+                        where : {
+                            board_id : {
+                                [Op.lt] : body.board_id
+                            },
+                            cat_id : {
+                                [Op.or] : {
+                                    [Op.eq] : where_1,
+                                    [Op.gt] : where_2
+                                }
+                            }
+                        },
+                        limit : 1,
+                        order: sequelize.literal('board_id DESC')
+                    })
+                    .then(
+                        pre => {
+                            result['pre'] = pre;
+                            callback(result);
+                        }
+                    )
+                }
+            )
+        } // get.pre_and_next 끝
     },
 
     check : {

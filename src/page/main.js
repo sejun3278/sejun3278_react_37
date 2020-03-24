@@ -47,7 +47,8 @@ class main extends Component {
       login, admin, user_ip,
       list_data, list_all_page, list_search, list_page, _changePage,
       _changeCatgory, user_id, _toggleModal, _getData, _getAllLike,
-      data, date, like_num
+      data, date, like_num, pre_view, next_view, _getPreAndNextData,
+      category_data, select_category, _selectCategoryData
     } = this.props;
 
     return (
@@ -98,13 +99,21 @@ class main extends Component {
               date : date,
               like_num : like_num,
               _getData : _getData,
-              _getAllLike : _getAllLike
+              _getAllLike : _getAllLike,
+              pre_view : pre_view,
+              next_view : next_view,
+              _getPreAndNextData : _getPreAndNextData,
             })} />
           </div>
 
           <div id='Mains-right'>
             <Route path='/write'
-            component={this._withProps(Right_Write, { contents : contents })} />
+            component={this._withProps(Right_Write, { 
+              contents : contents,
+              category : category_data,
+              select_category : select_category,
+              _selectCategoryData : _selectCategoryData
+              })} />
           </div>
         </div>
     );

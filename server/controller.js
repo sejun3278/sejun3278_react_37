@@ -185,6 +185,8 @@ const sendMail = (mailOption) => {
               res.send(true);
             }
           })
+        } else {
+          res.send(false)
         }
       },
 
@@ -289,6 +291,14 @@ const sendMail = (mailOption) => {
           res.send(data)
         })
       },
+
+      pre_and_next : (req, res) => {
+        const body = req.body;
+
+        model.get.pre_and_next(body, data => {
+          res.send(data)
+        })
+      }
     },
 
     check : {
