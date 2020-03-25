@@ -7,6 +7,8 @@ import { List, Write, View, Signup } from './index.js';
 import { Right_Write } from './right/index.js'; 
 import { Category } from './left/index.js'; 
 
+import axios from 'axios';
+
 class main extends Component {
   constructor(props) {
     super(props)
@@ -40,8 +42,21 @@ class main extends Component {
     this.setState({ title : title })
   }
 
+  _getModifyData = async (board_id) => {
+    const getData = await axios('/get/board_data', {
+      method : 'POST',
+      headers: new Headers(),
+      data : { id : board_id }
+    });
+
+      this.setState({ 
+        title : getData.data[0].title,
+        contents : getData.data[0].contents
+      })
+  }
+
   render() {
-    const { _changeState, _getContents, _getTitles } = this;
+    const { _changeState, _getContents, _getTitles, _getModifyData } = this;
     const { contents, title } = this.state;
     const { 
       login, admin, user_ip,
@@ -77,14 +92,23 @@ class main extends Component {
                       })} 
                      exact/>
             </Switch>
+            
+            <Route path='/write/modify/:data' 
+                    component={this._withProps(Write, { 
+                      _getContents : _getContents,
+                      _getTitles : _getTitles,
+                      contents : contents,
+                      title : title,
+                      _getModifyData : _getModifyData
+                      })} />
 
             <Route path='/write' 
-                   component={this._withProps(Write, { 
-                     _getContents : _getContents,
-                     _getTitles : _getTitles,
-                     contents : contents,
-                     title : title
-                     })} />
+                    component={this._withProps(Write, { 
+                      _getContents : _getContents,
+                      _getTitles : _getTitles,
+                      contents : contents,
+                      title : title
+                      })} exact/>
 
             <Route path='/signup' 
                    component={Signup}
@@ -94,6 +118,7 @@ class main extends Component {
              component={this._withProps(View, { 
               login : login,
               user_id : user_id,
+              admin : admin,
               _toggleModal : _toggleModal,
               data : data,
               date : date,
@@ -107,13 +132,23 @@ class main extends Component {
           </div>
 
           <div id='Mains-right'>
-            <Route path='/write'
-            component={this._withProps(Right_Write, { 
-              contents : contents,
-              category : category_data,
-              select_category : select_category,
-              _selectCategoryData : _selectCategoryData
-              })} />
+            <Switch>
+                <Route path='/write/modify/:data'
+                component={this._withProps(Right_Write, { 
+                  contents : contents,
+                  category : category_data,
+                  select_category : select_category,
+                  _selectCategoryData : _selectCategoryData
+                })} />
+
+                <Route path='/write'
+                component={this._withProps(Right_Write, { 
+                  contents : contents,
+                  category : category_data,
+                  select_category : select_category,
+                  _selectCategoryData : _selectCategoryData
+                })}/>
+            </Switch>
           </div>
         </div>
     );

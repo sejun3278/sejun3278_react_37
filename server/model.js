@@ -150,6 +150,18 @@ module.exports = {
             }
 
             callback(true)
+        },
+
+        board : (body, callback) => {
+            Board.update({
+                title : body.title,
+                contents : body.contents,
+                cat_id : body.category
+            }, {
+                where : { board_id : body.board_id }
+            })
+            .then( () => { callback(true) })
+            .catch(err => { throw err; })
         }
     },
 
@@ -165,6 +177,14 @@ module.exports = {
                 .then( () => { callback(true) })
                 .catch(err => { throw err; })
             })
+        },
+
+        board : (body, callback) => {
+            Board.destroy({
+                where : { board_id : body.board_id }
+            })
+            .then( () => { callback(true) })
+            .catch(err => { throw err; })
         }
     },
 

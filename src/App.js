@@ -182,8 +182,19 @@ class App extends Component {
     this.setState({ category_data : getData.data })
   }
 
-  _selectCategoryData = async () => {
-    const category = document.getElementsByName('select_category')[0].value;
+  _selectCategoryData = async (board_id) => {
+    let category = document.getElementsByName('select_category')[0].value;
+
+    if(board_id) {
+      // 수정 페이지일 경우 카테고리 변경
+      const getData = await axios('/get/board_data', {
+        method : 'POST',
+        headers: new Headers(),
+        data : { id : board_id }
+      });
+
+      return this.setState({ select_category : getData.data[0].cat_id })
+    }
 
     this.setState({
       select_category : category

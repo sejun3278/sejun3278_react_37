@@ -9,7 +9,12 @@ class right_write extends Component {
     this.state = {
       title : "",
       contents : "",
-      select_category : "",
+    }
+  }
+
+  componentDidMount() {
+    if(this.props.match.params.data && !this.props.select_category) {
+      this.props._selectCategoryData(this.props.match.params.data);
     }
   }
 
@@ -28,17 +33,41 @@ class right_write extends Component {
       return alert('카테고리를 선택해주세요.')
     }
 
-    const data = { title : title, contents : contents, category : category };
-    const res = await axios('/add/board', {
-      method : 'POST',
-      data : data,
-      headers: new Headers()
-    })
+    if(!this.props.match.params.data) {
+      const data = { title : title, contents : contents, category : category };
+      const res = await axios('/add/board', {
+        method : 'POST',
+        data : data,
+        headers: new Headers()
+      })
 
-    if(res.data) {
-      alert('글 등록이 완료되었습니다.');
-      return window.location.replace('/')
-    }
+      if(res.data) {
+        alert('글 등록이 완료되었습니다.');
+        return window.location.replace('/')
+      }
+
+    } else {
+      const data = { 
+        title : title, 
+        contents : contents, 
+        category : category, 
+        board_id : this.props.match.params.data };
+
+        const res = await axios('/update/board', {
+          method : 'POST',
+          data : data,
+          headers: new Headers()
+        })
+
+        if(res.data) {
+          alert('글 수정이 완료되었습니다.');
+
+          const url = "/view/" + this.props.match.params.data;
+
+          sessionStorage.setItem('category', category);
+          return window.location.href = url
+        }
+     }
   }
 
   render() {
@@ -69,8 +98,14 @@ class right_write extends Component {
           </div>
 
           <div id='post_submit'>
-            <button onClick={() => this._submitBoard()}> 포스트 등록 </button>
+              <button onClick={() => this._submitBoard()}> 
+                { !this.props.match.params.data 
+                    ? '포스트 등록'
+                    : '포스트 수정'
+                }
+              </button>
           </div>
+
         </div>
     );
   }

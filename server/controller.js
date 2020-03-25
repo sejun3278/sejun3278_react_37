@@ -221,7 +221,15 @@ const sendMail = (mailOption) => {
             }
           }
         }) 
-      }
+      },
+
+       board : (req, res) => {
+         const body = req.body;
+
+         model.update.board(body, data => {
+            res.send(true)
+         })
+       }
     },
 
     delete : {
@@ -232,6 +240,14 @@ const sendMail = (mailOption) => {
           if(result) {
             res.send(result);
           }
+        })
+      },
+
+      board : (req, res) => {
+        const body = req.body;
+
+        model.delete.board(body, () => {
+          res.send(true)
         })
       }
     },

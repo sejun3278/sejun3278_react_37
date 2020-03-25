@@ -8,6 +8,12 @@ class write extends Component {
     super(props)
   }
 
+  componentDidMount() {
+    if(this.props.match.params.data && this.props.title.length === 0) {
+      this.props._getModifyData(this.props.match.params.data);
+    }
+  }
+
   render() {
     const { 
       _getContents, _getTitles, contents, title 

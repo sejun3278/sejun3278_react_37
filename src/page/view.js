@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './main.css';
 
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 class view extends Component {
   constructor(props) {
@@ -118,13 +119,28 @@ class view extends Component {
     return window.location.href = url;
   }
 
+  _removeView = async function() {
+    if(window.confirm('해당 게시물을 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.')) {
+      const board_id = this.props.match.params.data;
+      
+      await axios('/delete/board', {
+        method : 'POST',
+        headers: new Headers(),
+        data : { board_id : board_id }
+      })
+
+      alert('게시물이 삭제되었습니다.')
+      return window.location.href = '/'
+    }
+  }
+
   render() {
     const { 
       none_like, like, like_exist, pre, next,
     } = this.state;
     
     const { 
-      data, date, like_num, pre_view, next_view
+      data, date, like_num, pre_view, next_view, admin
     } = this.props
 
     if(next_view.length) {
@@ -135,10 +151,22 @@ class view extends Component {
       var pre_url = '/view/' + pre_view[0].board_id;
     }
 
+    if(data.data) {
+      var modify_url = '/write/modify/' + data.data[0].board_id;
+    }
+
     return (
         <div className='Write View'>
           {data.data 
           ? <div>
+            {admin === 'Y'
+            ?
+              <div className='write_option_div'>
+                <Link to={modify_url}> <input type='button' value='수정' /> </Link>
+                <input type='button' value='삭제' onClick={() => this._removeView()} />
+              </div>
+            : null }
+
               <div className='top_title'>
                 <input type='text' id='title_txt' name='title' defaultValue={data.data[0].title} readOnly/>
 
@@ -153,6 +181,10 @@ class view extends Component {
               </div>
 
               <div className='other_div'>
+                <input type='button' value='목록' id='view_list_button'
+                       onClick={() => window.location.href = '/'}
+                />
+                
                 <div className='view_pre_next_div view_pre'> 
                   {/* left empty */}
                   <p> 이전글 </p>
