@@ -25,11 +25,15 @@ class App extends Component {
       user_id : "",
       data : "",
       date : "",
+      like_num : 0,
+      like_exist : null,
       like_num : "",
       pre_view : "",
       next_view : "",
       category_data : [],
       select_category : "",
+      reply_data : [],
+      reply_num : null
     }
   }
 
@@ -47,15 +51,14 @@ class App extends Component {
     }
   }
 
-  _getAllLike = (type) => {
-    const { data } = this.state;
+  _getAllLike = async (board_id) => {
+    const getData = await axios('/get/board_data', {
+      method : 'POST',
+      headers: new Headers(),
+      data : { id : board_id }
+    });
 
-    if(type === 'add') {
-      this.setState({ like_num : data.data[0].likes + 1})
-
-    } else if (type === 'remove') {
-      this.setState({ like_num : data.data[0].likes})
-    }
+    this.setState({ like_num : getData.data[0].likes })
   }
 
   _getData = async (board_id) => {
@@ -201,20 +204,41 @@ class App extends Component {
     })
   }
 
+  // like 여부 확인
+  _getLikeExist = (boo) => {
+    this.setState({ like_exist : boo })
+  }
+
+  _getReplyData = async (board_id) => {
+
+    // 데이터와 총 갯수 구하기
+    const data = await axios('/get/reply_data', {
+      method : 'POST',
+      headers: new Headers(),
+      data : { board_id : board_id }
+    })
+
+    return this.setState({
+      reply_data : data.data.rows,
+      reply_num : data.data.count
+    })
+  }
+
   render() {
     const { 
       login, admin, user_ip, login_modal,
       list_data, list_all_page, list_search, list_page, user_id,
-      data, date, like_num, pre_view, next_view, category_data,
-      select_category
+      data, date, like_num, like_exist, pre_view, next_view, 
+      category_data, select_category, reply_data, reply_num
     } = this.state;
 
     const { 
       _login, _logout, _toggleModal, _getSearch, _changePage,
       _changeCatgory, _getData, _getAllLike, _getPreAndNextData,
-      _selectCategoryData
+      _selectCategoryData, _getLikeExist, _getReplyData
     } = this;
-    
+
+
     return(
     <div>
       <div>
@@ -255,6 +279,11 @@ class App extends Component {
           category_data = {category_data}
           select_category = {select_category}
           _selectCategoryData = {_selectCategoryData}
+          _getLikeExist = {_getLikeExist}
+          like_exist = {like_exist}
+          reply_data = {reply_data}
+          reply_num = {reply_num}
+          _getReplyData = {_getReplyData}
         />
       </div>
     </div>

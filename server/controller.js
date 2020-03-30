@@ -162,6 +162,14 @@ const sendMail = (mailOption) => {
         model.add.user(body, hash_pw, now_date, result => {
           res.send(result);
         })
+      },
+
+      reply : (req, res) => {
+        const body = req.body;
+
+        model.add.reply(body, now_date, result => {
+          res.send(result)
+        })
       }
     },
 
@@ -249,6 +257,14 @@ const sendMail = (mailOption) => {
         model.delete.board(body, () => {
           res.send(true)
         })
+      },
+
+      reply : (req, res) => {
+        const body = req.body;
+
+        model.delete.reply(body, () => {
+          res.send(true)
+        })
       }
     },
 
@@ -312,6 +328,23 @@ const sendMail = (mailOption) => {
         const body = req.body;
 
         model.get.pre_and_next(body, data => {
+          res.send(data)
+        })
+      },
+
+      reply_data : (req, res) => {
+        const body = req.body;
+
+        model.get.reply_data(body, data => {
+          res.send(data)
+        })
+      },
+
+    // get.
+      user_info : (req, res) => {
+        const body = req.body;
+
+        model.get.user_info(body, data => {
           res.send(data)
         })
       }

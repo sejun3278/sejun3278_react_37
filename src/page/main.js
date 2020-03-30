@@ -63,7 +63,8 @@ class main extends Component {
       list_data, list_all_page, list_search, list_page, _changePage,
       _changeCatgory, user_id, _toggleModal, _getData, _getAllLike,
       data, date, like_num, pre_view, next_view, _getPreAndNextData,
-      category_data, select_category, _selectCategoryData
+      category_data, select_category, _selectCategoryData, like_exist, _getLikeExist,
+      reply_data, reply_num, _getReplyData
     } = this.props;
 
     return (
@@ -128,6 +129,11 @@ class main extends Component {
               pre_view : pre_view,
               next_view : next_view,
               _getPreAndNextData : _getPreAndNextData,
+              _getLikeExist : _getLikeExist,
+              like_exist : like_exist,
+              reply_data : reply_data,
+              reply_num : reply_num,
+              _getReplyData : _getReplyData
             })} />
           </div>
 

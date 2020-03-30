@@ -10,7 +10,6 @@ class view extends Component {
     this.state = {
       none_like : 'https://iconmonstr.com/wp-content/g/gd/makefg.php?i=../assets/preview/2013/png/iconmonstr-thumb-10.png&r=171&g=171&b=171',
       like : 'https://iconmonstr.com/wp-content/g/gd/makefg.php?i=../assets/preview/2013/png/iconmonstr-thumb-10.png&r=171&g=53&b=53',
-      like_exist : false,
       pre : "https://iconmonstr.com/wp-content/g/gd/makefg.php?i=../assets/preview/2018/png/iconmonstr-angel-left-thin.png&r=0&g=0&b=0",
       next : "https://iconmonstr.com/wp-content/g/gd/makefg.php?i=../assets/preview/2018/png/iconmonstr-angel-right-thin.png&r=0&g=0&b=0",
     }
@@ -18,14 +17,24 @@ class view extends Component {
 
   componentDidMount() {
     const board_id = this.props.match.params.data;
-    const { pre_view, next_view, _getPreAndNextData } = this.props;
+    const { 
+      pre_view, next_view, _getPreAndNextData, like_exist,
+      reply_num, _getReplyData
+    } = this.props;
 
     this._addViewCnt(board_id);
+
+    if(reply_num === null) {
+      _getReplyData(board_id)
+    }
 
     if(!this.props.data) {
       this.props._getData(board_id)
     }
-    this._getLikeInfo()
+
+    if(like_exist === null) {
+      this._getLikeInfo()
+    }
     
     if(pre_view === "" || next_view === "") {
       _getPreAndNextData(board_id)
@@ -33,7 +42,7 @@ class view extends Component {
   }
 
   _getLikeInfo = async function() {
-    const { user_id, login } = this.props;
+    const { user_id, login, _getLikeExist } = this.props;
 
     if(login) {
       // 로그인 된 상태에서만 실행
@@ -48,10 +57,9 @@ class view extends Component {
       })
 
       if(getData.data[0]) {
-        this.setState({ 
-          like_exist : true
-        })
+        return _getLikeExist(true)
       }
+      _getLikeExist(false)
     }
   };
 
@@ -65,12 +73,11 @@ class view extends Component {
 
   _toggleLike = async function() {
     const { 
-      user_id, login, _toggleModal, _getAllLike 
+      user_id, _getAllLike 
     } = this.props;
 
-    if(!login) {
-      alert('로그인이 필요합니다.');
-      return _toggleModal(true)
+    if(!this._loginCheck()) {
+      return
     }
 
     const board_id = this.props.match.params.data;
@@ -92,17 +99,17 @@ class view extends Component {
           data : cancel
         })
 
-        this.setState({ like_exist : false })
+        this.props._getLikeExist(false)
         //this._getAllLike('remove')
-        _getAllLike('remove')
+        _getAllLike(board_id)
 
         alert('좋아요가 취소되었습니다.');
       }
        
     } else {
-      this.setState({ like_exist : true })
+      this.props._getLikeExist(true)
       //this._getAllLike('add')
-      _getAllLike('add')
+      _getAllLike(board_id)
 
       alert('해당 게시물에 좋아요를 누르셨습니다.')
     }
@@ -134,14 +141,95 @@ class view extends Component {
     }
   }
 
+  _loginCheck = () => {
+    const { 
+      login, _toggleModal
+    } = this.props;
+
+    if(!login) {
+      alert('로그인이 필요합니다.');
+      _toggleModal(true)
+
+      return false;
+    }
+
+    return true;
+  }
+
+  _addReply = async () => {
+    let reply = document.getElementsByName('write_reply')[0].value.trim();
+
+    // 내용 줄바꿈 처리하기
+    reply = reply.replace(/(\n|\r\n)/g, '<br>');
+
+    const board_id = this.props.match.params.data;
+    const { user_id } = this.props;
+
+    if(!this._loginCheck()) {
+      return
+    }
+
+    if(reply === "" || reply.length === 0) {
+      document.getElementsByName('write_reply')[0].focus()
+      document.getElementsByName('write_reply')[0].value = reply;
+
+      return alert('댓글을 입력해주세요.');
+
+    } else if(reply.split('<br>').length > 5) {
+      return alert('댓글 내용이 5줄 이상 초과되었습니다.')
+    }
+
+    const data = { 
+      board_id : board_id,
+      contents : reply,
+      user_id : user_id 
+    }
+
+    await axios('/add/reply', {
+      method : 'POST',
+      headers: new Headers(),
+      data : data
+    })
+
+    alert('댓글이 등록되었습니다.')
+    return window.location.reload();
+  }
+
+  _getUserInfo = async function(user_id) {
+    const data = await axios('/get/user_info', {
+      method : 'POST',
+      headers: new Headers(),
+      data : { user_id : user_id }
+    })
+
+    return data.data[0];
+  }
+
+  _removeReply = async function(reply_id) {
+    
+    if(window.confirm('해당 댓글을 삭제하시겠습니까?')) {
+      await axios('/delete/reply', {
+        method : 'POST',
+        headers: new Headers(),
+        data : { reply_id : reply_id }
+      })
+    }
+
+    alert('댓글 삭제가 완료되었습니다.')
+    return window.location.reload();
+  }
+
   render() {
     const { 
-      none_like, like, like_exist, pre, next,
+      none_like, like, pre, next
     } = this.state;
     
     const { 
-      data, date, like_num, pre_view, next_view, admin
+      data, date, like_num, pre_view, next_view, admin,
+      like_exist, reply_num, reply_data
     } = this.props
+
+    const { _loginCheck, _addReply } = this; 
 
     if(next_view.length) {
       var next_url = '/view/' + next_view[0].board_id;
@@ -154,7 +242,7 @@ class view extends Component {
     if(data.data) {
       var modify_url = '/write/modify/' + data.data[0].board_id;
     }
-
+    
     return (
         <div className='Write View'>
           {data.data 
@@ -226,8 +314,72 @@ class view extends Component {
                     : <p> 마지막 글입니다. </p>}
                   </div>
                 </div>
+              </div> 
+              {/* other_div className 끝 */}
 
-              </div>
+              <div className='Reply_div'>
+                <h4> 댓글 </h4>
+
+                <div className='Reply_write'>
+                  <textarea rows='3'placeholder='100자 이내의 글을 입력해주세요.'
+                    maxLength='100' name='write_reply' onClick={() => _loginCheck()}
+                    >
+                  </textarea>
+                  
+                  <input type='button' value='등록' id='reply_submit_button'
+                         onClick={() => _addReply()}
+                  />
+                </div>
+
+                <div className='Reply_list'>
+                  {reply_data.length > 0 && reply_num > 0
+                    ? <div> 
+                        <h5> {reply_num} 개의 댓글이 있습니다. </h5>
+
+                        <div className='reply_list_div'>
+                          {reply_data.map( (el) => {
+
+                            let id = el.user.id;
+                            if(el.user.admin === 'Y') {
+                              id = '관리자'
+                            }
+
+                            let date = el.date.slice(2, 10) + ' ' + el.date.slice(11, 16); 
+
+                            return(
+                              <div className='reply_list_gird'> 
+                                <div style={ el.user.admin === 'Y' ? {'fontWeight' : 'bold'} : null}
+                                     className='reply_list_id'
+                                > 
+                                  {/* 아이디 */}
+                                  {id}
+                                </div>
+
+                                <div
+                                className='reply_list_contents'
+                                dangerouslySetInnerHTML={ { __html : el.contents }}> 
+                                  {/* 내용 */}
+                                </div>
+
+                                <div className='reply_list_date'> 
+                                  {/* 작성일 및 기타 */}
+                                  {date}
+
+                                  {(this.props.login && this.props.login === el.user.id) || this.props.admin === 'Y'
+                                  ? <input type='button' value='삭제' className='reply_delete_btn'
+                                          onClick={() => this._removeReply(el.reply_id)}
+                                  />
+                                  : null}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                              
+                    : <h5> 작성된 댓글이 없습니다. </h5>}
+                </div>
+              </div> {/* Reply_div 끝 */}
             </div>
 
           : null}

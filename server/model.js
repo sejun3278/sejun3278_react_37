@@ -5,6 +5,7 @@ const {
     Category,
     User,
     Like,
+    Reply,
     Sequelize: { Op }
   } = require('./models');
 sequelize.query('SET NAMES utf8;');
@@ -103,6 +104,17 @@ module.exports = {
                     .then( () => callback(true) );
                 }
             })
+        },
+
+        reply : (body, now_date, callback) => {
+            Reply.create({
+                contents : body.contents,
+                date : now_date,
+                board_id : body.board_id,
+                user_id : body.user_id
+            })
+            .then( () => callback(true) )
+            .catch( () => callback(false) )
         }
     },
 
@@ -182,6 +194,14 @@ module.exports = {
         board : (body, callback) => {
             Board.destroy({
                 where : { board_id : body.board_id }
+            })
+            .then( () => { callback(true) })
+            .catch(err => { throw err; })
+        },
+         
+        reply : (body, callback) => {
+            Reply.destroy({
+                where : { reply_id : body.reply_id }
             })
             .then( () => { callback(true) })
             .catch(err => { throw err; })
@@ -361,7 +381,21 @@ module.exports = {
                     )
                 }
             )
-        } // get.pre_and_next 끝
+        }, // get.pre_and_next 끝
+
+        reply_data : (body, callback) => {
+            Reply.findAndCountAll({
+                include : [
+                    {
+                        model : User,
+                        //attributes : ['id']
+                    }
+                ],
+                where : { board_id : body.board_id }
+            })
+            .then( (result) => callback(result) )
+            .catch(err => { throw err; })
+        },
     },
 
     check : {
