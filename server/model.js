@@ -384,16 +384,36 @@ module.exports = {
         }, // get.pre_and_next 끝
 
         reply_data : (body, callback) => {
-            Reply.findAndCountAll({
+            let result = {};
+
+            // 전체 데이터 수 구하기
+            Reply.count({
+                where : {
+                    board_id : body.board_id
+                }
+            })
+            .then( (cnt_result) => {
+                result['count'] = cnt_result
+            })
+            .catch(err => { throw err; })
+
+            //
+            Reply.findAll({
                 include : [
                     {
                         model : User,
                         //attributes : ['id']
                     }
                 ],
-                where : { board_id : body.board_id }
+                where : { board_id : body.board_id },
+                limit : body.reply_limit,
+                offset : (body.reply_page - 1) * body.reply_limit,
             })
-            .then( (result) => callback(result) )
+            .then( (data_result) => {
+                result['rows'] = data_result
+
+                callback(result) 
+            })
             .catch(err => { throw err; })
         },
     },

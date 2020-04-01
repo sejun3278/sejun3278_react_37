@@ -12,11 +12,14 @@ class view extends Component {
       like : 'https://iconmonstr.com/wp-content/g/gd/makefg.php?i=../assets/preview/2013/png/iconmonstr-thumb-10.png&r=171&g=53&b=53',
       pre : "https://iconmonstr.com/wp-content/g/gd/makefg.php?i=../assets/preview/2018/png/iconmonstr-angel-left-thin.png&r=0&g=0&b=0",
       next : "https://iconmonstr.com/wp-content/g/gd/makefg.php?i=../assets/preview/2018/png/iconmonstr-angel-right-thin.png&r=0&g=0&b=0",
+      pre_block : "https://cdns.iconmonstr.com/wp-content/assets/preview/2017/240/iconmonstr-arrow-64.png",
+      next_block : "https://cdns.iconmonstr.com/wp-content/assets/preview/2017/240/iconmonstr-arrow-63.png"
     }
   }
 
   componentDidMount() {
     const board_id = this.props.match.params.data;
+
     const { 
       pre_view, next_view, _getPreAndNextData, like_exist,
       reply_num, _getReplyData
@@ -39,6 +42,15 @@ class view extends Component {
     if(pre_view === "" || next_view === "") {
       _getPreAndNextData(board_id)
     }
+
+    if(sessionStorage.getItem('reply')) {
+      const reply_session = JSON.parse(sessionStorage.getItem('reply'))
+      
+      if(reply_session.board_id !== board_id) {
+        sessionStorage.removeItem('reply')
+        _getReplyData(board_id)
+      }
+    } 
   }
 
   _getLikeInfo = async function() {
@@ -219,17 +231,59 @@ class view extends Component {
     return window.location.reload();
   }
 
+  _changeBlock = (type) => {
+    const { 
+      reply_pre_block, reply_next_block,
+      reply_block_limit, reply_block, _getReplyData
+    } = this.props;
+
+    const board_id = this.props.match.params.data;
+    let reply_session = new Object
+    let reply_page = this.props.reply_page;
+
+    if(type === 'pre') {
+      if(reply_pre_block) {
+        if(reply_block === 2) {
+          reply_session = { reply_page : 10, board_id : board_id }
+
+        } else {
+          reply_page = (reply_block * reply_block_limit) - 1;
+          reply_session = { reply_page : reply_page, board_id : board_id }
+        }
+      } else {
+        return alert('첫번째 블록입니다.')
+      }
+
+    } else if(type === 'next') {
+      if(reply_next_block) {
+        reply_page = (reply_block * reply_block_limit) + 1;
+        reply_session = { reply_page : reply_page, board_id : board_id }
+
+      } else {
+        return alert('마지막 블록입니다.')
+      }
+    }
+
+    sessionStorage.setItem('reply', JSON.stringify(reply_session));
+    return _getReplyData(board_id)
+  }
+
   render() {
     const { 
-      none_like, like, pre, next
+      none_like, like, pre, next, pre_block, next_block
     } = this.state;
     
     const { 
       data, date, like_num, pre_view, next_view, admin,
-      like_exist, reply_num, reply_data
+      like_exist, reply_num, reply_data, reply_all_page, reply_page,
+      _changePage
     } = this.props
 
-    const { _loginCheck, _addReply } = this; 
+
+    const { _loginCheck, _addReply, _changeBlock } = this; 
+
+    // 해당 게시물의 id 값
+    const board_id = this.props.match.params.data;
 
     if(next_view.length) {
       var next_url = '/view/' + next_view[0].board_id;
@@ -375,6 +429,45 @@ class view extends Component {
                             )
                           })}
                         </div>
+                        {/* reply_list_div 끝 */}
+                        
+                        <div className='reply_paging'> 
+                        {/* 댓글 페이징 시작 */}
+                          <div>
+                            {reply_all_page ?
+                            <ul>
+                              <li className='page_num'> 
+                                <img id='pre_block' src={pre_block}
+                                     onClick={() => _changeBlock('pre')}
+                                />
+                              </li>
+
+                                {reply_all_page.map( (el, key) => {
+                                  return(
+                                    el === reply_page ? 
+                                    /* 현재 페이지 */
+                                    <li key={key} className='page_num'> 
+                                      <b> {el} </b> 
+                                    </li>
+
+                                :  <li key={key} className='page_num'
+                                      onClick={() => _changePage(el, board_id)}
+                                  > 
+                                    {el} 
+                                  </li>
+                                  )
+                                })
+                              }
+                              <li className='page_num'> 
+                                <img id='next_block' src={next_block}
+                                     onClick={() => _changeBlock('next')}
+                                />
+                              </li>
+                            </ul> 
+                            : null}
+                          </div>
+
+                        </div> {/* 댓글 페이징 끝 */}
                       </div>
                               
                     : <h5> 작성된 댓글이 없습니다. </h5>}

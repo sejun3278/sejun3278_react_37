@@ -64,7 +64,8 @@ class main extends Component {
       _changeCatgory, user_id, _toggleModal, _getData, _getAllLike,
       data, date, like_num, pre_view, next_view, _getPreAndNextData,
       category_data, select_category, _selectCategoryData, like_exist, _getLikeExist,
-      reply_data, reply_num, _getReplyData
+      reply_data, reply_num, _getReplyData, reply_all_page, reply_page, reply_limit,
+      reply_pre_block, reply_next_block, reply_block, reply_block_limit
     } = this.props;
 
     return (
@@ -133,7 +134,15 @@ class main extends Component {
               like_exist : like_exist,
               reply_data : reply_data,
               reply_num : reply_num,
-              _getReplyData : _getReplyData
+              _getReplyData : _getReplyData,
+              _changePage : _changePage,
+              reply_all_page : reply_all_page,
+              reply_page : reply_page,
+              reply_limit : reply_limit,
+              reply_pre_block : reply_pre_block,
+              reply_next_block : reply_next_block,
+              reply_block : reply_block,
+              reply_block_limit : reply_block_limit,
             })} />
           </div>
 

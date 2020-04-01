@@ -33,7 +33,14 @@ class App extends Component {
       category_data : [],
       select_category : "",
       reply_data : [],
-      reply_num : null
+      reply_num : null,
+      reply_all_page : [],
+      reply_page : 1,
+      reply_limit : 2,
+      reply_block : 1,
+      reply_pre_block : false,
+      reply_next_block : false,
+      reply_block_limit : 10
     }
   }
 
@@ -48,6 +55,10 @@ class App extends Component {
         user_ip : JSON.parse(sessionStorage.IP),
         user_id : JSON.parse(sessionStorage.login).user_id, 
       })
+    }
+
+    if(sessionStorage.reply) {
+      this._setReplyPage()
     }
   }
 
@@ -84,11 +95,35 @@ class App extends Component {
     return 1;
   }
 
-  _changePage = (el) => {
-    this.setState({ list_page : el })
-    sessionStorage.setItem('page', el);
+  _setReplyPage = function() {
+    if(sessionStorage.reply) {
+      // 댓글
+      const reply = JSON.parse(sessionStorage.reply);
 
-    return this._getListData();
+      this.setState({ 
+        reply_page : Number(reply.reply_page)
+      })
+
+      return this._getAllPage(reply.board_id)
+    }
+  }
+
+  _changePage = (el, board_id) => {
+    if(board_id === undefined) {
+      // 게시글 형태에서
+      this.setState({ list_page : el })
+      sessionStorage.setItem('page', el);
+
+      return this._getListData();
+
+    } else {
+    // 댓글 형태에서
+      this.setState({ reply_page : el })
+      const reply_session = { reply_page : el, board_id : board_id }
+      sessionStorage.setItem('reply', JSON.stringify(reply_session));
+
+      return this._getReplyData(board_id);
+    }
   }
 
   _getListData = async function() {
@@ -211,17 +246,108 @@ class App extends Component {
 
   _getReplyData = async (board_id) => {
 
+    var reply_page = 1;
+    if(sessionStorage.getItem('reply')) {
+      reply_page = JSON.parse(sessionStorage.getItem('reply')).reply_page
+
+    } else {
+      reply_page = this.state.reply_page
+    }
+
+    // 한 페이지에 불러올 댓글의 갯수 설정
+    const { reply_limit } = this.state;
+
+    const obj = {
+      board_id : board_id,
+      reply_page : Number(reply_page),
+      reply_limit : reply_limit
+    }
+
     // 데이터와 총 갯수 구하기
     const data = await axios('/get/reply_data', {
       method : 'POST',
       headers: new Headers(),
-      data : { board_id : board_id }
+      data : obj
     })
+
+    // 페이징 정보 구해오기
+    const page_data = this._getAllPage(data.data.count)
 
     return this.setState({
       reply_data : data.data.rows,
-      reply_num : data.data.count
+      reply_num : data.data.count,
+      reply_all_page : page_data.page_arr
     })
+  }
+
+  _getAllPage = function(cnt) {
+    let result = new Object;
+
+    // 전체 페이지 수 구하기
+    let page_arr = [];
+
+    const { reply_limit, reply_block_limit } = this.state;
+
+    // 현재 페이지 구하기
+    let reply_page = 1;
+    if(sessionStorage.getItem('reply')) {
+      reply_page = JSON.parse(sessionStorage.getItem('reply')).reply_page
+
+    } else {
+      reply_page = this.state.reply_page
+    } 
+    
+    // 블록 최대 범위 (소수점 포함)
+    const max_block = (Math.ceil(cnt / reply_limit)) / reply_block_limit;
+
+    // 현재 페이지 위치를 블록 단위로 변환
+    const block_point = Math.ceil(reply_page / reply_block_limit);
+    this.setState({ reply_block : block_point, reply_page : reply_page })
+
+    // 다음 블록이 있는지 판단
+    if(block_point < max_block) {
+      this.setState({ reply_next_block : true })
+    
+    } else {
+      this.setState({ reply_next_block : false })
+    }
+
+    // 이전 블록이 있는지 판단
+    if(block_point > 1) {
+      this.setState({ reply_pre_block : true })
+
+    } else {
+      this.setState({ reply_pre_block : false })
+    }
+
+    let start = block_point;
+    if(start !== 1) {
+      start = ((start - 1) * reply_block_limit) + 1;
+    }
+    
+    let end = Math.ceil(cnt / reply_limit);
+    if(end > reply_block_limit) {
+      end = (start + reply_block_limit) - 1;
+    
+      if(end > (max_block * 10)) {
+        end = max_block * 10
+      }
+    }
+
+    for(start; start <= end; start++) {
+      page_arr.push(start);
+    }
+
+    result['page_arr'] = page_arr;
+    return result;
+  }
+
+  _changeBlock = (reply_page, board_id) => {
+    const reply_session = { reply_page : reply_page, board_id : board_id }
+    sessionStorage.setItem('reply', JSON.stringify(reply_session));
+
+
+    return this._getReplyData(board_id)
   }
 
   render() {
@@ -229,7 +355,9 @@ class App extends Component {
       login, admin, user_ip, login_modal,
       list_data, list_all_page, list_search, list_page, user_id,
       data, date, like_num, like_exist, pre_view, next_view, 
-      category_data, select_category, reply_data, reply_num
+      category_data, select_category, reply_data, reply_num,
+      reply_all_page, reply_page, replt_limit,
+      reply_pre_block, reply_next_block, reply_block, reply_block_limit
     } = this.state;
 
     const { 
@@ -284,6 +412,13 @@ class App extends Component {
           reply_data = {reply_data}
           reply_num = {reply_num}
           _getReplyData = {_getReplyData}
+          reply_all_page = {reply_all_page}
+          reply_page = {reply_page}
+          replt_limit = {replt_limit}
+          reply_pre_block = {reply_pre_block}
+          reply_next_block = {reply_next_block}
+          reply_block = {reply_block}
+          reply_block_limit = {reply_block_limit}
         />
       </div>
     </div>

@@ -23,6 +23,7 @@ class header extends Component {
       this.props._logout();
 
       sessionStorage.removeItem('page')
+      sessionStorage.removeItem('reply')
       sessionStorage.setItem('category', '')
 
       return window.location.href = '/';
@@ -33,6 +34,7 @@ class header extends Component {
     window.location.href = '/';
 
     sessionStorage.removeItem('page')
+    sessionStorage.removeItem('reply')
     sessionStorage.setItem('category', '')
   }
 

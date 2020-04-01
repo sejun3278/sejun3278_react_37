@@ -513,7 +513,7 @@ input[name=change_password_submit] {
 #reply_submit_button {
     position: absolute;
     width: 7%;
-    height: 13.1%;
+    height: 97px;
     margin-top: -0px;
     background-color: white;
     border: solid 1px #ababab;
@@ -540,3 +540,14 @@ input[name=change_password_submit] {
     background-color: white;
     border: solid 1px #ababab;
 }
+
+.reply_paging {
+    padding: 5px;
+    margin-bottom: 200px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.page_num img { width: 25px; position: absolute; }
+.page_num #pre_block { margin: -16px 0px 0px -30px; }
+.page_num #next_block { margin: -16px 0px 0px 5px; }
